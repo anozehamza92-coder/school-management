@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ansar Ruhul Islam School | Management System</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="school-logo">ARI</div>
+
+        <h2>Ansar Ruhul Islam</h2>
+        <p>Primary & Secondary School</p>
+        <small>
+          Sheikh Dende Estate, Ogunrun 1,<br />
+          Off Ifelouwa Estate,<br />
+          Mowe, Ogun State
+        </small>
+      </div>
+
+      <nav>
+        <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+        <a href="#" class="nav-link" data-page="students">Students</a>
+        <a href="#" class="nav-link" data-page="classes">Classes & Subjects</a>
+        <a href="#" class="nav-link" data-page="attendance">Attendance</a>
+        <a href="#" class="nav-link" data-page="scores">Scores & Reports</a>
+        <a href="#" class="nav-link" data-page="fees">Fees & Payments</a>
+        <a href="#" class="nav-link" data-page="announcements">Announcements</a>
+      </nav>
+
+      <button id="logoutButton">Logout</button>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p>2026/2027 Academic Session - First Term</p>
+        </div>
+
+        <div class="admin-profile">
+          <div class="profile-icon">A</div>
+          <div>
+            <strong>School Admin</strong>
+            <small>Administrator</small>
+          </div>
+        </div>
+      </header>
+
+      <section id="dashboard" class="page-section active-section">
+        <div class="welcome-box">
+          <p class="school-label">
+            ANSAR RUHUL ISLAM PRIMARY & SECONDARY SCHOOL
+          </p>
+          <h2>Welcome back, Administrator</h2>
+          <p>
+            Manage students, attendance, results, payments, announcements, and
+            school activities from one place.
+          </p>
+        </div>
+
+        <div class="statistics-grid">
+          <article class="stat-card blue">
+            <p>Total Students</p>
+            <h3 id="totalStudents">50</h3>
+            <span>Primary and Secondary</span>
+          </article>
+
+          <article class="stat-card green">
+            <p>Total Teachers</p>
+            <h3>12</h3>
+            <span>Teaching Staff</span>
+          </article>
+
+          <article class="stat-card orange">
+            <p>Fees Collected</p>
+            <h3 id="totalFeesCollected">₦850,000</h3>
+            <span>This Term</span>
+          </article>
+
+          <article class="stat-card purple">
+            <p>Attendance Rate</p>
+            <h3>92%</h3>
+            <span>Today</span>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Student Management</h2>
+                <p>Add and view students in your school.</p>
+              </div>
+
+              <input
+                type="search"
+                id="studentSearch"
+                placeholder="Search student..."
+              />
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Class</th>
+                  <th>Parent Contact</th>
+                </tr>
+              </thead>
+              <tbody id="recentStudents">
+                <tr>
+                  <td>David Okafor</td>
+                  <td>Primary 5A</td>
+                  <td>0801 234 5678</td>
+                </tr>
+                <tr>
+                  <td>Mary Musa</td>
+                  <td>JSS 2A</td>
+                  <td>0809 876 5432</td>
+                </tr>
+                <tr>
+                  <td>John Ibrahim</td>
+                  <td>SSS 1A</td>
+                  <td>0810 456 7890</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>Quick Actions</h2>
+            </div>
+
+            <div class="quick-actions">
+              <button data-page-target="students">Add Student</button>
+              <button data-page-target="attendance">Take Attendance</button>
+              <button data-page-target="scores">Enter Scores</button>
+              <button data-page-target="fees">Record Payment</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="students" class="page-section">
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Student Management</h2>
+              <p>Add and view students in your school.</p>
+            </div>
+          </div>
+
+          <form id="studentForm" class="student-form">
+            <input
+              type="text"
+              id="studentName"
+              placeholder="Student full name"
+              required
+            />
+
+            <select id="studentClass" required>
+              <option value="">Select class</option>
+              <option>Primary 1A</option>
+              <option>Primary 5A</option>
+              <option>JSS 1A</option>
+              <option>JSS 2A</option>
+              <option>SSS 1A</option>
+            </select>
+
+            <input
+              type="text"
+              id="parentContact"
+              placeholder="Parent phone number"
+              required
+            />
+
+            <button type="submit">Add Student</button>
+          </form>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Class</th>
+                <th>Parent Contact</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="classes" class="page-section">
+        <div class="panel">
+          <h2>Classes & Subjects</h2>
+          <p>
+            Create classes, class arms, subjects, and teacher assignments here.
+          </p>
+
+          <div class="info-cards">
+            <div>
+              <h3>Primary Section</h3>
+              <p>Primary 1 - Primary 6</p>
+            </div>
+
+            <div>
+              <h3>Junior Secondary</h3>
+              <p>JSS 1 - JSS 3</p>
+            </div>
+
+            <div>
+              <h3>Senior Secondary</h3>
+              <p>SSS 1 - SSS 3</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="attendance" class="page-section">
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Attendance Register</h2>
+              <p>Record attendance for students in your school.</p>
+            </div>
+
+            <input type="date" id="attendanceDate" />
+          </div>
+
+          <div class="attendance-summary">
+            <div>
+              <span>Present</span>
+              <strong id="presentCount">0</strong>
+            </div>
+
+            <div>
+              <span>Absent</span>
+              <strong id="absentCount">0</strong>
+            </div>
+
+            <div>
+              <span>Late</span>
+              <strong id="lateCount">0</strong>
+            </div>
+          </div>
+
+          <div id="attendanceList" class="attendance-list"></div>
+
+          <button class="save-button" id="saveAttendance">
+            Save Attendance
+          </button>
+        </div>
+      </section>
+      <section id="scores" class="page-section">
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Report Card Generator</h2>
+              <p>Enter student information and subject scores.</p>
+            </div>
+
+            <button class="small-button" id="printReport">Print Report</button>
+          </div>
+
+          <div class="report-form">
+            <div>
+              <label for="reportStudentName">Student Name</label>
+              <input
+                type="text"
+                id="reportStudentName"
+                placeholder="Enter student name"
+              />
+            </div>
+
+            <div>
+              <label for="reportClass">Class</label>
+              <input
+                type="text"
+                id="reportClass"
+                placeholder="Example: Primary 5A"
+              />
+            </div>
+
+            <div>
+              <label for="reportTerm">Term</label>
+              <select id="reportTerm">
+                <option>First Term</option>
+                <option>Second Term</option>
+                <option>Third Term</option>
+              </select>
+            </div>
+          </div>
+
+          <h3 class="form-heading">Subject Scores</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>CA Score</th>
+                <th>Exam Score</th>
+                <th>Total</th>
+                <th>Grade</th>
+                <th>Remark</th>
+              </tr>
+            </thead>
+
+            <tbody id="reportSubjects">
+              <tr>
+                <td><input class="subject-name" value="English Studies" /></td>
+                <td>
+                  <input
+                    class="report-ca"
+                    type="number"
+                    min="0"
+                    max="40"
+                    value="30"
+                  />
+                </td>
+                <td>
+                  <input
+                    class="report-exam"
+                    type="number"
+                    min="0"
+                    max="60"
+                    value="50"
+                  />
+                </td>
+                <td class="report-total">80</td>
+                <td class="report-grade">A1</td>
+                <td class="report-remark">Excellent</td>
+              </tr>
+
+              <tr>
+                <td><input class="subject-name" value="Mathematics" /></td>
+                <td>
+                  <input
+                    class="report-ca"
+                    type="number"
+                    min="0"
+                    max="40"
+                    value="28"
+                  />
+                </td>
+                <td>
+                  <input
+                    class="report-exam"
+                    type="number"
+                    min="0"
+                    max="60"
+                    value="45"
+                  />
+                </td>
+                <td class="report-total">73</td>
+                <td class="report-grade">B2</td>
+                <td class="report-remark">Very Good</td>
+              </tr>
+
+              <tr>
+                <td><input class="subject-name" value="Basic Science" /></td>
+                <td>
+                  <input
+                    class="report-ca"
+                    type="number"
+                    min="0"
+                    max="40"
+                    value="25"
+                  />
+                </td>
+                <td>
+                  <input
+                    class="report-exam"
+                    type="number"
+                    min="0"
+                    max="60"
+                    value="38"
+                  />
+                </td>
+                <td class="report-total">63</td>
+                <td class="report-grade">C4</td>
+                <td class="report-remark">Credit</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="report-summary">
+            <div>
+              <span>Total Score</span>
+              <strong id="reportTotal">216</strong>
+            </div>
+
+            <div>
+              <span>Average</span>
+              <strong id="reportAverage">72%</strong>
+            </div>
+
+            <div>
+              <span>Overall Grade</span>
+              <strong id="overallGrade">B2</strong>
+            </div>
+          </div>
+
+          <div class="report-comments">
+            <label for="teacherComment">Class Teacher's Comment</label>
+            <textarea id="teacherComment">
+A very good performance. Keep working hard.</textarea
+            >
+
+            <label for="principalComment">Principal's Comment</label>
+            <textarea id="principalComment">
+Promoted to the next class.</textarea
+            >
+          </div>
+
+          <button class="save-button" id="calculateReport">
+            Calculate Report
+          </button>
+
+          <div id="printableReport" class="printable-report"></div>
+        </div>
+      </section>
+
+      <section id="fees" class="page-section">
+        <div class="panel">
+          <h2>Fees & Payments</h2>
+          <p>
+            Track school fees, payment status, balances, invoices, and receipts.
+          </p>
+
+          <div class="statistics-grid">
+            <article class="stat-card green">
+              <p>Total Collected</p>
+              <h3 id="feesTotalCollected">₦850,000</h3>
+            </article>
+
+            <article class="stat-card orange">
+              <p>Outstanding Balance</p>
+              <h3 id="feesOutstandingBalance">₦250,000</h3>
+            </article>
+
+            <article class="stat-card blue">
+              <p>Paid Students</p>
+              <h3 id="feesPaidStudents">38</h3>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="announcements" class="page-section">
+        <div class="panel">
+          <h2>Announcements</h2>
+          <p>Send important notices to teachers, parents, and students.</p>
+
+          <form id="announcementForm">
+            <input
+              type="text"
+              id="announcementTitle"
+              placeholder="Announcement title"
+              required
+            />
+            <textarea
+              id="announcementMessage"
+              placeholder="Write your message here..."
+              required
+            ></textarea>
+            <button type="submit">Publish Announcement</button>
+          </form>
+
+          <div id="announcementList"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
