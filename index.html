@@ -77,7 +77,7 @@
 
           <article class="stat-card orange">
             <p>Fees Collected</p>
-            <h3 id="totalFeesCollected">₦850,000</h3>
+            <h3 id="dashboardFeesCollected">₦0</h3>
             <span>This Term</span>
           </article>
 
@@ -428,26 +428,150 @@ Promoted to the next class.</textarea
 
       <section id="fees" class="page-section">
         <div class="panel">
-          <h2>Fees & Payments</h2>
-          <p>
-            Track school fees, payment status, balances, invoices, and receipts.
-          </p>
+          <div class="panel-heading">
+            <div>
+              <h2>Fees & Payments</h2>
+              <p>Track school fees, payment status, balances, invoices, and receipts.</p>
+            </div>
+            <input
+              type="search"
+              id="feesSearch"
+              placeholder="Search student..."
+            />
+          </div>
 
           <div class="statistics-grid">
             <article class="stat-card green">
               <p>Total Collected</p>
-              <h3 id="feesTotalCollected">₦850,000</h3>
+              <h3 id="feesTotalCollected">₦0</h3>
             </article>
 
             <article class="stat-card orange">
               <p>Outstanding Balance</p>
-              <h3 id="feesOutstandingBalance">₦250,000</h3>
+              <h3 id="feesOutstandingBalance">₦0</h3>
             </article>
 
             <article class="stat-card blue">
               <p>Paid Students</p>
-              <h3 id="feesPaidStudents">38</h3>
+              <h3 id="feesPaidStudents">0</h3>
             </article>
+
+            <article class="stat-card purple">
+              <p>Pending Students</p>
+              <h3 id="feesPendingStudents">0</h3>
+            </article>
+          </div>
+
+          <div class="fees-tabs">
+            <button class="tab-button active" data-tab="assign">Assign Fees</button>
+            <button class="tab-button" data-tab="payments">Record Payment</button>
+            <button class="tab-button" data-tab="view">View Fees Status</button>
+          </div>
+
+          <div id="assign-tab" class="tab-content active">
+            <form id="assignFeesForm" class="student-form">
+              <div>
+                <label for="feeStudent">Select Student</label>
+                <select id="feeStudent" required>
+                  <option value="">Choose a student...</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="feeAmount">Fee Amount (₦)</label>
+                <input
+                  type="number"
+                  id="feeAmount"
+                  placeholder="Enter amount in Naira"
+                  min="0"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="feeDescription">Description</label>
+                <input
+                  type="text"
+                  id="feeDescription"
+                  placeholder="e.g., First Term Fees, Examination Fees"
+                  required
+                />
+              </div>
+
+              <button type="submit">Assign Fee</button>
+            </form>
+          </div>
+
+          <div id="payments-tab" class="tab-content">
+            <form id="recordPaymentForm" class="student-form">
+              <div>
+                <label for="paymentStudent">Select Student</label>
+                <select id="paymentStudent" required>
+                  <option value="">Choose a student...</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="paymentAmount">Payment Amount (₦)</label>
+                <input
+                  type="number"
+                  id="paymentAmount"
+                  placeholder="Enter payment amount"
+                  min="0"
+                  required
+                />
+              </div>
+
+              <div>
+                <label for="paymentMethod">Payment Method</label>
+                <select id="paymentMethod" required>
+                  <option value="">Select method...</option>
+                  <option>Cash</option>
+                  <option>Bank Transfer</option>
+                  <option>Mobile Money</option>
+                  <option>Check</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="paymentDate">Payment Date</label>
+                <input type="date" id="paymentDate" required />
+              </div>
+
+              <button type="submit">Record Payment</button>
+            </form>
+          </div>
+
+          <div id="view-tab" class="tab-content">
+            <div class="fees-filter">
+              <button class="filter-button active" data-filter="all">All</button>
+              <button class="filter-button" data-filter="paid">Paid</button>
+              <button class="filter-button" data-filter="pending">Pending</button>
+              <button class="filter-button" data-filter="partial">Partial Payment</button>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Class</th>
+                  <th>Total Fees</th>
+                  <th>Paid</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="feesTableBody"></tbody>
+            </table>
+          </div>
+
+          <div id="paymentHistoryModal" class="modal">
+            <div class="modal-content">
+              <span class="close">&times;</span>
+              <h2>Payment History</h2>
+              <div id="paymentHistoryList"></div>
+            </div>
           </div>
         </div>
       </section>
