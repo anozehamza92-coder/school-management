@@ -33,6 +33,10 @@ function showPage(pageName) {
   }
 
   pageTitle.textContent = pageNames[pageName] || "Dashboard";
+
+  if (pageName === "fees") {
+    updateFeesDisplay();
+  }
 }
 
 navigationLinks.forEach(function (link) {
@@ -166,6 +170,7 @@ studentForm.addEventListener("submit", function (event) {
   saveStudents();
   displayStudents();
   studentForm.reset();
+  updateFeeStudentSelects();
 });
 
 function deleteStudent(id) {
@@ -176,8 +181,12 @@ function deleteStudent(id) {
 
   if (confirmed) {
     students = students.filter((s) => s.id !== id);
+    let studentFees = JSON.parse(localStorage.getItem("studentFees")) || {};
+    delete studentFees[id];
+    localStorage.setItem("studentFees", JSON.stringify(studentFees));
     saveStudents();
     displayStudents();
+    updateFeeStudentSelects();
   }
 }
 
@@ -290,6 +299,303 @@ saveAttendanceButton.addEventListener("click", function () {
 });
 
 displayAttendance();
+
+/* ===========================
+   FEES MANAGEMENT SYSTEM
+   =========================== */
+
+let studentFees = JSON.parse(localStorage.getItem("studentFees")) || {};
+let paymentHistory = JSON.parse(localStorage.getItem("paymentHistory")) || {};
+
+const assignFeesForm = document.getElementById("assignFeesForm");
+const recordPaymentForm = document.getElementById("recordPaymentForm");
+const feesTableBody = document.getElementById("feesTableBody");
+const feesSearch = document.getElementById("feesSearch");
+const feesTotalCollected = document.getElementById("feesTotalCollected");
+const feesOutstandingBalance = document.getElementById("feesOutstandingBalance");
+const feesPaidStudents = document.getElementById("feesPaidStudents");
+const feesPendingStudents = document.getElementById("feesPendingStudents");
+const dashboardFeesCollected = document.getElementById("dashboardFeesCollected");
+
+function updateFeeStudentSelects() {
+  const feeStudentSelect = document.getElementById("feeStudent");
+  const paymentStudentSelect = document.getElementById("paymentStudent");
+
+  feeStudentSelect.innerHTML = '<option value="">Choose a student...</option>';
+  paymentStudentSelect.innerHTML = '<option value="">Choose a student...</option>';
+
+  students.forEach(function (student) {
+    const option1 = document.createElement("option");
+    option1.value = student.id;
+    option1.textContent = `${student.name} (${student.studentClass})`;
+    feeStudentSelect.appendChild(option1);
+
+    const option2 = document.createElement("option");
+    option2.value = student.id;
+    option2.textContent = `${student.name} (${student.studentClass})`;
+    paymentStudentSelect.appendChild(option2);
+  });
+}
+
+function formatCurrency(amount) {
+  return "₦" + amount.toLocaleString();
+}
+
+function getStudentTotalFees(studentId) {
+  if (!studentFees[studentId]) return 0;
+  return studentFees[studentId].reduce((total, fee) => total + fee.amount, 0);
+}
+
+function getStudentPaidAmount(studentId) {
+  if (!paymentHistory[studentId]) return 0;
+  return paymentHistory[studentId].reduce((total, payment) => total + payment.amount, 0);
+}
+
+function getStudentBalance(studentId) {
+  return getStudentTotalFees(studentId) - getStudentPaidAmount(studentId);
+}
+
+function saveFeesData() {
+  localStorage.setItem("studentFees", JSON.stringify(studentFees));
+  localStorage.setItem("paymentHistory", JSON.stringify(paymentHistory));
+}
+
+assignFeesForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const studentId = parseInt(document.getElementById("feeStudent").value);
+  const amount = parseInt(document.getElementById("feeAmount").value);
+  const description = document.getElementById("feeDescription").value.trim();
+
+  if (!studentId || !amount || !description) {
+    alert("Please complete all fields.");
+    return;
+  }
+
+  if (!studentFees[studentId]) {
+    studentFees[studentId] = [];
+  }
+
+  studentFees[studentId].push({
+    id: Date.now(),
+    amount: amount,
+    description: description,
+    dateAssigned: new Date().toISOString().split("T")[0],
+  });
+
+  saveFeesData();
+  updateFeesDisplay();
+  assignFeesForm.reset();
+  alert("Fee assigned successfully.");
+});
+
+recordPaymentForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const studentId = parseInt(document.getElementById("paymentStudent").value);
+  const amount = parseInt(document.getElementById("paymentAmount").value);
+  const method = document.getElementById("paymentMethod").value;
+  const date = document.getElementById("paymentDate").value;
+
+  if (!studentId || !amount || !method || !date) {
+    alert("Please complete all fields.");
+    return;
+  }
+
+  if (!paymentHistory[studentId]) {
+    paymentHistory[studentId] = [];
+  }
+
+  const totalFees = getStudentTotalFees(studentId);
+  const paidAmount = getStudentPaidAmount(studentId);
+
+  if (paidAmount + amount > totalFees) {
+    alert(`Payment exceeds total fees. Balance would be negative.`);
+    return;
+  }
+
+  paymentHistory[studentId].push({
+    id: Date.now(),
+    amount: amount,
+    method: method,
+    date: date,
+    receiptNo: "REC-" + Date.now(),
+  });
+
+  saveFeesData();
+  updateFeesDisplay();
+  recordPaymentForm.reset();
+  document.getElementById("paymentDate").valueAsDate = new Date();
+  alert("Payment recorded successfully.");
+});
+
+function updateFeesDisplay() {
+  let totalCollected = 0;
+  let totalFees = 0;
+  let paidStudentsCount = 0;
+  let pendingStudentsCount = 0;
+
+  feesTableBody.innerHTML = "";
+
+  let feesData = students
+    .map(function (student) {
+      const fees = getStudentTotalFees(student.id);
+      const paid = getStudentPaidAmount(student.id);
+      const balance = getStudentBalance(student.id);
+      let status = "Pending";
+
+      if (fees === 0) {
+        status = "No Fee";
+      } else if (balance === 0) {
+        status = "Paid";
+        paidStudentsCount++;
+      } else if (paid > 0 && balance > 0) {
+        status = "Partial Payment";
+      } else {
+        pendingStudentsCount++;
+      }
+
+      totalFees += fees;
+      totalCollected += paid;
+
+      return {
+        studentId: student.id,
+        name: student.name,
+        studentClass: student.studentClass,
+        totalFees: fees,
+        paid: paid,
+        balance: balance,
+        status: status,
+      };
+    })
+    .filter((item) => item.totalFees > 0);
+
+  feesData.forEach(function (item) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${item.name}</td>
+      <td>${item.studentClass}</td>
+      <td>${formatCurrency(item.totalFees)}</td>
+      <td>${formatCurrency(item.paid)}</td>
+      <td>${formatCurrency(item.balance)}</td>
+      <td><span class="status-badge ${item.status.toLowerCase().replace(" ", "-")}">${item.status}</span></td>
+      <td>
+        <button class="edit-button" onclick="viewPaymentHistory(${item.studentId})">History</button>
+      </td>
+    `;
+    feesTableBody.appendChild(row);
+  });
+
+  feesTotalCollected.textContent = formatCurrency(totalCollected);
+  feesOutstandingBalance.textContent = formatCurrency(totalFees - totalCollected);
+  feesPaidStudents.textContent = paidStudentsCount;
+  feesPendingStudents.textContent = pendingStudentsCount;
+  dashboardFeesCollected.textContent = formatCurrency(totalCollected);
+
+  updateFeesFilter();
+}
+
+let currentFilterType = "all";
+
+document.querySelectorAll(".filter-button").forEach(function (button) {
+  button.addEventListener("click", function () {
+    document.querySelectorAll(".filter-button").forEach((btn) =>
+      btn.classList.remove("active")
+    );
+    this.classList.add("active");
+    currentFilterType = this.dataset.filter;
+    updateFeesFilter();
+  });
+});
+
+function updateFeesFilter() {
+  const rows = document.querySelectorAll("#feesTableBody tr");
+  rows.forEach(function (row) {
+    const statusCell = row.querySelector(".status-badge");
+    const status = statusCell.textContent.toLowerCase().replace(" ", "-");
+
+    if (currentFilterType === "all") {
+      row.style.display = "";
+    } else if (currentFilterType === status) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+
+feesSearch.addEventListener("input", function () {
+  const searchText = this.value.toLowerCase();
+  const rows = document.querySelectorAll("#feesTableBody tr");
+  rows.forEach(function (row) {
+    const nameCell = row.cells[0].textContent.toLowerCase();
+    const classCell = row.cells[1].textContent.toLowerCase();
+    if (nameCell.includes(searchText) || classCell.includes(searchText)) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+});
+
+function viewPaymentHistory(studentId) {
+  const student = students.find((s) => s.id === studentId);
+  const payments = paymentHistory[studentId] || [];
+  const modal = document.getElementById("paymentHistoryModal");
+  const historyList = document.getElementById("paymentHistoryList");
+
+  historyList.innerHTML = `
+    <h3>${student.name} - Payment History</h3>
+    <p><strong>Total Fees:</strong> ${formatCurrency(getStudentTotalFees(studentId))}</p>
+    <p><strong>Total Paid:</strong> ${formatCurrency(getStudentPaidAmount(studentId))}</p>
+    <p><strong>Balance:</strong> ${formatCurrency(getStudentBalance(studentId))}</p>
+    <hr>
+  `;
+
+  if (payments.length === 0) {
+    historyList.innerHTML += "<p>No payment records found.</p>";
+  } else {
+    let html = "<table style='width:100%; border-collapse: collapse;'>";
+    html += "<thead><tr><th style='border: 1px solid #ddd; padding: 10px;'>Date</th><th style='border: 1px solid #ddd; padding: 10px;'>Amount</th><th style='border: 1px solid #ddd; padding: 10px;'>Method</th><th style='border: 1px solid #ddd; padding: 10px;'>Receipt</th></tr></thead>";
+    html += "<tbody>";
+    payments.forEach(function (payment) {
+      html += `<tr><td style='border: 1px solid #ddd; padding: 10px;'>${payment.date}</td><td style='border: 1px solid #ddd; padding: 10px;'>${formatCurrency(payment.amount)}</td><td style='border: 1px solid #ddd; padding: 10px;'>${payment.method}</td><td style='border: 1px solid #ddd; padding: 10px;'>${payment.receiptNo}</td></tr>`;
+    });
+    html += "</tbody></table>";
+    historyList.innerHTML += html;
+  }
+
+  modal.style.display = "block";
+}
+
+document.querySelector(".close").addEventListener("click", function () {
+  document.getElementById("paymentHistoryModal").style.display = "none";
+});
+
+window.addEventListener("click", function (event) {
+  const modal = document.getElementById("paymentHistoryModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
+// Tab switching
+document.querySelectorAll(".tab-button").forEach(function (button) {
+  button.addEventListener("click", function () {
+    const tabName = this.dataset.tab;
+    document.querySelectorAll(".tab-button").forEach((btn) =>
+      btn.classList.remove("active")
+    );
+    document.querySelectorAll(".tab-content").forEach((content) =>
+      content.classList.remove("active")
+    );
+    this.classList.add("active");
+    document.getElementById(tabName + "-tab").classList.add("active");
+  });
+});
+
+updateFeeStudentSelects();
+document.getElementById("paymentDate").valueAsDate = new Date();
 
 /* Announcements */
 const announcementForm = document.getElementById("announcementForm");
